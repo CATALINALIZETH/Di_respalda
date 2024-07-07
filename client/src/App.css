@@ -41,3 +41,25 @@
   align-items: center;
   margin-top: 20px;
 }
+
+.gato{
+  border-radius: 20px;
+}
+
+.hola{
+  color: rgb(97, 30, 30);
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.button-icon {
+  width: 40px; /* Ajusta el tamaño de la imagen según sea necesario */
+  height: auto; /* Para mantener la proporción de la imagen */
+  margin-right: 10px; /* Espacio entre la imagen y el texto del botón */
+}
+
+.crudu{
+  padding-top: 5%;
+  text-align: center;
+  color: rgb(67, 231, 52);
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}

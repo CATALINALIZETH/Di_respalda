@@ -22,7 +22,7 @@
     "react-router-dom": "^6.24.1"
   },
   "devDependencies": {
-    "react-scripts": "^5.0.1",
+    "react-scripts": "^3.0.1",
     "webpack": "^5.92.1"
   }
 }

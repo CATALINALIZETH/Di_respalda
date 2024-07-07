@@ -15,6 +15,7 @@ const db = mysql.createConnection({
     database:"usuarios"
 });
 
+//crear usuarios
 app.post("/create",async (req,res)=>{
     const nombre = req.body.nombre; //post/auth/register
     const correo = req.body.correo; //post/auth/register
@@ -33,6 +34,7 @@ app.post("/create",async (req,res)=>{
     //para guardar la información del formulario
 });
 
+//para ver los usuarios
 app.get("/usuarios",async (req,res)=>{
     db.query('SELECT * FROM usuarios' ,
         (err, result)=>{ //capta rl error o resultado
@@ -46,6 +48,27 @@ app.get("/usuarios",async (req,res)=>{
     //para guardar la información del formulario
 });
 
+//editar usuarios
+app.put("/update",async (req,res)=>{
+    const id = req.body.id;
+    const nombre = req.body.nombre; //post/auth/register
+    const correo = req.body.correo; //post/auth/register
+    let contrasena = req.body.contrasena; //post/auth/register
+    contrasena = await bcrypt.hash(contrasena, 10);
+
+    db.query('UPDATE usuarios SET nombre=?,correo=?,password=? WHERE id=?',[nombre, correo, contrasena, id],
+        (err, result)=>{ //capta rl error o resultado
+            if(err){
+                console.log(err);//para que en consola muestre el error
+            }else{
+                res.send("El usuario a sigo corregido correctamente :)");
+            }
+        }
+    );
+    //para guardar la información del formulario
+});
+
+//entrar verificar datos
 app.post("/login", async (req, res) => {
     const correo = req.body.correo;
     const contrasena = req.body.contrasena;
@@ -60,7 +83,12 @@ app.post("/login", async (req, res) => {
             if (isMatch) {
                 // Generar un token de autenticación
                 const token = jwt.sign({ id: result[0].id }, 'secret_key', { expiresIn: '1h' });
-                res.json({ auth: true, token: token });
+                res.json({ 
+                    auth: true, 
+                    token: token,
+                    name: result[0].nombre,//para que mande el nombre a libros
+                    message: 'Login exitoso'
+                 });
             } else {
                 res.json({ auth: false, message: "Usuario o Contraseña incorrectos" });
             }

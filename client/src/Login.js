@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
     const [correoLogin, setCorreoLogin] = useState("");
     const [contrasenaLogin, setContrasenaLogin] = useState("");
     const [loginStatus, setLoginStatus] = useState("");
+    const navigate = useNavigate();
 
     const login = () => {
         axios.post("http://localhost:3001/login", {
@@ -13,6 +15,7 @@ function Login() {
         }).then((response) => {
             if (response.data.auth) {
                 setLoginStatus("Login exitoso");
+                navigate('/libros', { state: { name: response.data.name } });
             } else {
                 setLoginStatus(response.data.message);
             }
