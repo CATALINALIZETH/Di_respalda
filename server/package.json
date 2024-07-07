@@ -17,7 +17,9 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
-    "mysql": "^2.18.1"
+    "lottie-react": "^2.4.0",
+    "mysql": "^2.18.1",
+    "react-router-dom": "^6.24.1"
   },
   "devDependencies": {
     "react-scripts": "^5.0.1",

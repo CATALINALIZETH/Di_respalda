@@ -34,3 +34,10 @@
   width: 100%;
   align-items: center;
 }
+
+.animation-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
