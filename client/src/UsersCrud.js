@@ -2,6 +2,9 @@ import React from 'react';
 import { useState, useEffect } from "react";
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import booksIcon from './imagen/usuarios.png';
+
+import Swal from 'sweetalert2';
 
 function UsersCrud() {
 
@@ -17,36 +20,82 @@ function UsersCrud() {
     const [usuariosList, setUsuarios] = useState([]);
     const [editar, setEditar] = useState(false);
 
-//para añadir usuario
+    //para añadir usuario
     const add = () => {
         axios.post("http://localhost:3001/create", {
             nombre: nombre,
             correo: correo,
             contrasena: contrasena
         }).then(() => {
-            alert("El usuario está registrado");
+            getusuarios(); //para mostrar automaticamente al registrar
+            limpiar();//limpia campos automaticamente al registrar
+            Swal.fire({
+                title: "El usuario está registrado :)",
+                html: "<i>Usuario " + nombre + " esta registrado</i>",
+                icon: "success",
+                timer: 3500 //para que visualmente se quede 2.5 seg
+            });
         }).catch(error => {
             console.error('Hubo un error!', error);
             alert('Hubo un error al registrar el usuario.');
         });
-        getusuarios(); //para mostrar automaticamente al registrar
-        limpiar();//limpia campos automaticamente al registrar
     }
-//esto sera para actualizar
+    //esto sera para actualizar
     const update = () => {
         axios.put("http://localhost:3001/update", {
-            id:id,
+            id: id,
             nombre: nombre,
             correo: correo,
             contrasena: contrasena
         }).then(() => {
-           getusuarios();//para mostrar automaticamente al actualizar
-           limpiar();//limpia campos automaticamente al actualizar
-           alert("Actualizado con Éxito :)")
+            getusuarios();//para mostrar automaticamente al actualizar
+            limpiar();//limpia campos automaticamente al actualizar
+            Swal.fire({
+                title: "Usuario Actualizado :)",
+                html: "<i>Usuario " + nombre + " esta actualizado</i>",
+                icon: "success",
+                timer: 3500 //para que visualmente se quede 2.5 seg
+            });
         });
     }
 
-//esto es para ver usuarios
+    //esto sera para borrar
+    const deleteUsua = (val) => {
+            Swal.fire({
+                title: "Conformación de borrado",
+                text: "¿Estás seguro de borrar a "+val.nombre+" permanentemente?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Si, eliminar"
+              }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.delete(`http://localhost:3001/delete/${val.id}`
+
+                    ).then(() => {     
+                        getusuarios();//para mostrar automaticamente al actualizar
+                        limpiar();
+                        Swal.fire({ //sin fire
+                            title: "Usuario Borrado",
+                            text: val.nombre+" fue eliminado",
+                            icon: "success",
+                            showConfirmButton:false,
+                            timer:3000
+                          });
+                      }).catch(function (error){
+                        Swal.fire({ //sin fire
+                           icon: 'error',
+                           title:'Ooops...',
+                           text: 'No se puede eliminar',
+                           footer: error.AxiosError
+                          })
+                      });
+                }
+              });
+    }
+
+    //esto es para ver usuarios
     const getusuarios = () => {
         axios.get("http://localhost:3001/usuarios")
             .then((response) => {
@@ -58,13 +107,13 @@ function UsersCrud() {
             });
     }
 
-//para limpair los campos usuarios
-const limpiar = () => {
-    setNombre("");
-    setCorreo("");
-    setContrasena("");
-    setEditar(false); //esto hace que si clickeas en cancelar regrese al boton de registrar
-}
+    //para limpair los campos usuarios
+    const limpiar = () => {
+        setNombre("");
+        setCorreo("");
+        setContrasena("");
+        setEditar(false); //esto hace que si clickeas en cancelar regrese al boton de registrar
+    }
 
     const editarUsuarios = (val) => {
         setEditar(true);
@@ -77,7 +126,10 @@ const limpiar = () => {
 
     return (
         <div className="container">
+            <div className='arribaUsersCrud'>
             <h2 className='crudu'>CRUD de Usuarios</h2>
+            <img src={booksIcon} alt="Icono de Usuarios" className="usuarios" />
+            </div>
             <div className="container">
                 <br></br>
                 <div className="card text-center">
@@ -103,11 +155,11 @@ const limpiar = () => {
                         {/* esto es un if para los botones de registrar y actualizar */}
                         {
                             editar == true ?
-                            <div>
-                                <button className="btn btn-outline-warning  m-2" onClick={update}>Actualizar</button>,
-                                <button className="btn btn-outline-danger m-2" onClick={limpiar}>Cancelar</button> 
-                                {/* m-2 es para darles espacio entre ellos */}
-                            </div>    
+                                <div>
+                                    <button className="btn btn-outline-warning  m-2" onClick={update}>Actualizar</button>,
+                                    <button className="btn btn-outline-danger m-2" onClick={limpiar}>Cancelar</button>
+                                    {/* m-2 es para darles espacio entre ellos */}
+                                </div>
                                 : <button className="btn btn-outline-success" onClick={add}>Registrar</button>
                         }
 
@@ -138,7 +190,11 @@ const limpiar = () => {
 
                                     <td>
                                         <div className="btn-group" role="group" aria-label="Basic example">
-                                            <button type="button" className="btn btn-danger">Borrar</button>
+                                            <button type="button"
+                                                onClick={() => {
+                                                    deleteUsua(val);
+                                                }}
+                                                className="btn btn-danger">Borrar</button>
                                             <button type="button"
                                                 onClick={() => {
                                                     editarUsuarios(val);

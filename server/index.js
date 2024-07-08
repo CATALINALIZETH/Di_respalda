@@ -27,7 +27,7 @@ app.post("/create",async (req,res)=>{
             if(err){
                 console.log(err);//para que en consola muestre el error
             }else{
-                res.send("Usuario registrado con éxito :)");
+                res.send(result);
             }
         }
     );
@@ -61,7 +61,23 @@ app.put("/update",async (req,res)=>{
             if(err){
                 console.log(err);//para que en consola muestre el error
             }else{
-                res.send("El usuario a sigo corregido correctamente :)");
+                res.send(result);
+            }
+        }
+    );
+    //para guardar la información del formulario
+});
+
+//borrar usuarios
+app.delete("/delete/:id",async (req,res)=>{
+    const id = req.params.id;
+
+    db.query('DELETE FROM usuarios WHERE id=?',id,
+        (err, result)=>{ //capta rl error o resultado
+            if(err){
+                console.log(err);//para que en consola muestre el error
+            }else{
+                res.send(result);
             }
         }
     );

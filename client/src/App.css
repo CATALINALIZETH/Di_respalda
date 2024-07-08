@@ -57,9 +57,22 @@
   margin-right: 10px; /* Espacio entre la imagen y el texto del botón */
 }
 
+.arribaUsersCrud{
+  display: flex;
+  justify-content: center;
+  align-items:center;
+}
+
 .crudu{
   padding-top: 5%;
   text-align: center;
   color: rgb(67, 231, 52);
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.usuarios{
+  width: 70px;
+  height: 70px;
+  margin-left: 2rem;
+  margin-top: 2rem;
 }
