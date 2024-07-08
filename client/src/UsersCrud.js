@@ -22,6 +22,16 @@ function UsersCrud() {
 
     //para añadir usuario
     const add = () => {
+        if (!nombre || !correo || !contrasena) {
+            Swal.fire({
+                title: "Error",
+                text: "Todos los campos son obligatorios",
+                icon: "error",
+                timer: 3500
+            });
+            return;
+        }
+        
         axios.post("http://localhost:3001/create", {
             nombre: nombre,
             correo: correo,

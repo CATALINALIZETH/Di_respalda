@@ -9,97 +9,70 @@ import Swal from 'sweetalert2';
 function BooksCrud() {
 
     useEffect(() => {
-        getusuarios();
+        getlibros();
     }, []);
 
-    const [nombre, setNombre] = useState("");
-    const [correo, setCorreo] = useState("");
-    const [contrasena, setContrasena] = useState("");
-    const [id, setId] = useState(0);
+    const [isbn, setIsbn] = useState('');
+    const [titulo, setTitulo] = useState('');
+    const [autor, setAutor] = useState('');
+    const [fecha_registro, setFecha] = useState('');
+    const [error, setError] = useState('');
 
-    const [usuariosList, setUsuarios] = useState([]);
+    const [id_libros, setId_libros] = useState(0);
+    const [librosList, setLibros] = useState([]);
     const [editar, setEditar] = useState(false);
 
-    //para añadir usuario
-    const add = () => {
-        axios.post("http://localhost:3001/create", {
-            nombre: nombre,
-            correo: correo,
-            contrasena: contrasena
-        }).then(() => {
-            getusuarios(); //para mostrar automaticamente al registrar
-            limpiar();//limpia campos automaticamente al registrar
+    //para añadir libros
+    const addl = () => {
+
+        if (!isbn || !titulo || !autor) {
             Swal.fire({
-                title: "El usuario está registrado :)",
-                html: "<i>Usuario " + nombre + " esta registrado</i>",
-                icon: "success",
-                timer: 3500 //para que visualmente se quede 2.5 seg
+                title: "Error",
+                text: "Todos los campos son obligatorios",
+                icon: "error",
+                timer: 3500
             });
-        }).catch(error => {
-            console.error('Hubo un error!', error);
-            alert('Hubo un error al registrar el usuario.');
-        });
-    }
-    //esto sera para actualizar
-    const update = () => {
-        axios.put("http://localhost:3001/update", {
-            id: id,
-            nombre: nombre,
-            correo: correo,
-            contrasena: contrasena
-        }).then(() => {
-            getusuarios();//para mostrar automaticamente al actualizar
-            limpiar();//limpia campos automaticamente al actualizar
-            Swal.fire({
-                title: "Usuario Actualizado :)",
-                html: "<i>Usuario " + nombre + " esta actualizado</i>",
-                icon: "success",
-                timer: 3500 //para que visualmente se quede 2.5 seg
-            });
-        });
-    }
+            return;
+        }
 
-    //esto sera para borrar
-    const deleteUsua = (val) => {
-            Swal.fire({
-                title: "Conformación de borrado",
-                text: "¿Estás seguro de borrar a "+val.nombre+" permanentemente?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Si, eliminar"
-              }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.delete(`http://localhost:3001/delete/${val.id}`
+        if (!fecha_registro) {
+            setError('La fecha es obligatoria.');
+            return;
+        }
 
-                    ).then(() => {     
-                        getusuarios();//para mostrar automaticamente al actualizar
-                        limpiar();
-                        Swal.fire({ //sin fire
-                            title: "Usuario Borrado",
-                            text: val.nombre+" fue eliminado",
-                            icon: "success",
-                            showConfirmButton:false,
-                            timer:3000
-                          });
-                      }).catch(function (error){
-                        Swal.fire({ //sin fire
-                           icon: 'error',
-                           title:'Ooops...',
-                           text: 'No se puede eliminar',
-                           footer: error.AxiosError
-                          })
-                      });
-                }
-              });
-    }
-
-    //esto es para ver usuarios
-    const getusuarios = () => {
-        axios.get("http://localhost:3001/usuarios")
+        const token = localStorage.getItem('token');
+        axios.post("http://localhost:3001/createBook", {
+            isbn: isbn,
+            titulo: titulo,
+            autor: autor,
+            fecha_registro: fecha_registro
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
             .then((response) => {
-                setUsuarios(response.data);
+                Swal.fire({
+                    title: "El libro está registrado :)",
+                    html: "<i>Libro " + titulo + " esta registrado</i>",
+                    icon: "success",
+                    timer: 3500 //para que visualmente se quede 2.5 seg
+                });
+                getlibros();
+                limpiar();
+            })
+            .catch((error) => {
+                console.error('Error al crear el libro:', error);
+                // Maneja el error aquí
+                setError('Error al crear el libro. Inténtalo de nuevo.');
+            });
+    }
+
+    //esto es para ver libros
+    const getlibros = () => {
+        axios.get("http://localhost:3001/libros")
+            .then((response) => {
+                setLibros(response.data);
             })
             .catch((error) => {
                 console.error('Error al obtener usuarios:', error);
@@ -107,28 +80,101 @@ function BooksCrud() {
             });
     }
 
-    //para limpair los campos usuarios
-    const limpiar = () => {
-        setNombre("");
-        setCorreo("");
-        setContrasena("");
-        setEditar(false); //esto hace que si clickeas en cancelar regrese al boton de registrar
+    // Update book
+    const updateBook = () => {
+        const token = localStorage.getItem('token');
+        axios.put("http://localhost:3001/updateBook", {
+            id_libros: id_libros,
+            isbn: isbn,
+            titulo: titulo,
+            autor: autor,
+            fecha_registro: fecha_registro
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then((response) => {
+                Swal.fire({
+                    title: "Libro Actualizado :)",
+                    html: "<i>Libro " + titulo + " está actualizado</i>",
+                    icon: "success",
+                    timer: 3500
+                });
+                getlibros();
+                limpiar();
+            })
+            .catch((error) => {
+                console.error('Error al actualizar el libro:', error);
+                setError('Error al actualizar el libro. Inténtalo de nuevo.');
+            });
     }
 
-    const editarUsuarios = (val) => {
-        setEditar(true);
+    // Delete book
+    const deleteBook = (val) => {
+        const token = localStorage.getItem('token');
+        Swal.fire({
+            title: "Confirmación de borrado",
+            text: "¿Estás seguro de borrar el libro " + val.titulo + " permanentemente?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sí, eliminar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios.delete(`http://localhost:3001/deleteBook/${val.id_libros}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                    .then(() => {
+                        Swal.fire({
+                            title: "Libro Borrado",
+                            text: val.titulo + " fue eliminado",
+                            icon: "success",
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                        getlibros();
+                        limpiar();
+                    })
+                    .catch((error) => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ooops...',
+                            text: 'No se puede eliminar',
+                            footer: error.message
+                        });
+                    });
+            }
+        });
+    }
 
-        setNombre(val.nombre);
-        setCorreo(val.correo);
-        setContrasena(val.password);
-        setId(val.id);
+    // Clear form
+    const limpiar = () => {
+        setIsbn('');
+        setTitulo('');
+        setAutor('');
+        setFecha('');
+        setId_libros(0);
+        setEditar(false);
+    }
+
+    const editarLibros = (val) => {
+        setEditar(true);
+        setIsbn(val.isbn);
+        setTitulo(val.titulo);
+        setAutor(val.autor);
+        setFecha(val.fecha_registro);
+        setId_libros(val.id_libros);
     }
 
     return (
         <div className="container">
             <div className='arribaUsersCrud'>
-            <h2 className='crudu'>CRUD de Libros</h2>
-            <img src={booksIcon} alt="Icono de Usuarios" className="usuarios" />
+                <h2 className='crudu'>CRUD de Libros</h2>
+                <img src={booksIcon} alt="Icono de Usuarios" className="usuarios" />
             </div>
             <div className="container">
                 <br></br>
@@ -138,31 +184,34 @@ function BooksCrud() {
                     </div>
                     <div className="card-body">
                         <div className="input-group mb-3">
-                            <span className="input-group-text">Nombre:</span>
-                            <input type="text" onChange={(event) => setNombre(event.target.value)}
-                                className="form-control" value={nombre} placeholder="Escribe nombre" />
+                            <span className="input-group-text">IsBn:</span>
+                            <input type="text" onChange={(event) => setIsbn(event.target.value)}
+                                className="form-control" value={isbn} placeholder="Escribe clave del libro" />
                         </div>
                         <div className="input-group mb-3">
-                            <span className="input-group-text">Correo:</span>
-                            <input type="text" onChange={(event) => setCorreo(event.target.value)}
-                                className="form-control" value={correo} placeholder="Escribe correo" />
+                            <span className="input-group-text">Titúlo:</span>
+                            <input type="text" onChange={(event) => setTitulo(event.target.value)}
+                                className="form-control" value={titulo} placeholder="Escribe título del libro" />
                         </div>
                         <div className="input-group mb-3">
-                            <span className="input-group-text">Contraseña:</span>
-                            <input type="password" onChange={(event) => setContrasena(event.target.value)}
-                                className="form-control" value={contrasena} placeholder="Escribe contraseña" />
+                            <span className="input-group-text">Autor:</span>
+                            <input type="text" onChange={(event) => setAutor(event.target.value)}
+                                className="form-control" value={autor} placeholder="Escribe el autor" />
+                        </div>
+                        <div className="input-group mb-3">
+                            <span className="input-group-text">Fecha Publicación:</span>
+                            <input type="date" onChange={(event) => setFecha(event.target.value)}
+                                className="form-control" value={fecha_registro} placeholder="" />
                         </div>
                         {/* esto es un if para los botones de registrar y actualizar */}
                         {
-                            editar == true ?
+                            editar ?
                                 <div>
-                                    <button className="btn btn-outline-warning  m-2" onClick={update}>Actualizar</button>,
+                                    <button className="btn btn-outline-warning m-2" onClick={updateBook}>Actualizar</button>
                                     <button className="btn btn-outline-danger m-2" onClick={limpiar}>Cancelar</button>
-                                    {/* m-2 es para darles espacio entre ellos */}
                                 </div>
-                                : <button className="btn btn-outline-success" onClick={add}>Registrar</button>
+                                : <button className="btn btn-outline-success" onClick={addl}>Registrar</button>
                         }
-
                     </div>
                 </div>
             </div>
@@ -172,32 +221,36 @@ function BooksCrud() {
                     <thead>
                         <tr>
                             <th scope="col">ID#</th>
-                            <th scope="col">Nombre</th>
-                            <th scope="col">Correo</th>
-                            <th scope="col">Contraseña</th>
+                            <th scope="col">Autor</th>
+                            <th scope="col">ISBN</th>
+                            <th scope="col">Fecha Registro</th>
+                            <th scope="col">Titúlo</th>
+                            <th scope="col">Id usuario Registro</th>
 
                             <th scope="col">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {
-                            usuariosList.map((val, key) => {
-                                return <tr key={val.id}>
-                                    <th>{val.id}</th>
-                                    <td>{val.nombre}</td>
-                                    <td>{val.correo}</td>
-                                    <td>{val.password}</td>
+                            librosList.map((val, key) => {
+                                return <tr>
+                                    <th scope="row">{val.id_libros}</th>
+                                    <th>{val.autor}</th>
+                                    <td>{val.isbn}</td>
+                                    <td>{val.fecha_registro}</td>
+                                    <td>{val.titulo}</td>
+                                    <td>{val.user_id}</td>
 
                                     <td>
                                         <div className="btn-group" role="group" aria-label="Basic example">
                                             <button type="button"
                                                 onClick={() => {
-                                                    deleteUsua(val);
+                                                    deleteBook(val);
                                                 }}
                                                 className="btn btn-danger">Borrar</button>
                                             <button type="button"
                                                 onClick={() => {
-                                                    editarUsuarios(val);
+                                                   editarLibros(val);
                                                 }}
                                                 className="btn btn-info">Editar</button>
                                         </div>

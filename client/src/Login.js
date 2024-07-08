@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 function Login() {
     const [correoLogin, setCorreoLogin] = useState("");
@@ -9,19 +10,40 @@ function Login() {
     const navigate = useNavigate();
 
     const login = () => {
+        if (!correoLogin || !contrasenaLogin) {
+            Swal.fire({
+                title: "Error",
+                text: "Todos los campos son obligatorios",
+                icon: "error",
+                timer: 3500
+            });
+            return;
+        }
+
         axios.post("http://localhost:3001/login", {
             correo: correoLogin,
             contrasena: contrasenaLogin
         }).then((response) => {
             if (response.data.auth) {
+                localStorage.setItem('token', response.data.token);
                 setLoginStatus("Login exitoso");
                 navigate('/libros', { state: { name: response.data.name } });
             } else {
-                setLoginStatus(response.data.message);
+                Swal.fire({
+                    title: "Error",
+                    text: response.data.message,
+                    icon: "error",
+                    timer: 3500
+                });
             }
         }).catch(error => {
             console.error('Hubo un error!', error);
-            alert('Hubo un error al iniciar sesión.');
+            Swal.fire({
+                title: "Error",
+                text: "Hubo un error al iniciar sesión.",
+                icon: "error",
+                timer: 3500
+            });
         });
     }
 

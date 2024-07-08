@@ -76,3 +76,12 @@
   margin-left: 2rem;
   margin-top: 2rem;
 }
+
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* O ajusta según tu diseño */
+  width: 100%;
+}
